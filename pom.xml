@@ -246,7 +246,7 @@
                                     <winDirChooser>true</winDirChooser>
                                     <winMenu>true</winMenu>
                                     <winShortcut>true</winShortcut>
-                                    <icon>${project.basedir}/target/assets/Ultimate S Setup.ico</icon>
+                                    <icon>${project.basedir}/assets/Ultimate S Setup.ico</icon>
                                     <javaOptions>
                                         <javaOption>-Dfile.encoding=UTF-8</javaOption>
                                     </javaOptions>
