@@ -20,8 +20,8 @@ public class CharEnabler
     public static void update()
     {
         CharHandler characters = CharHandler.getInstance();
-        FighterParamHandler.updateFighterParam(characters.getExcluded());
-        ConfigParamHandler.updateConfigParam(characters.getExcluded());
+        //FighterParamHandler.updateFighterParam(characters.getExcluded());
+        //ConfigParamHandler.updateConfigParam(characters.getExcluded());
         FlagHandler.updateFlags(characters.getIncluded());
         RomfsHandler.updateRomfs(characters.getIncluded(), characters.getExcluded());
     }
