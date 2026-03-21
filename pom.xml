@@ -221,6 +221,9 @@ exec "$DIR/${app.name}/bin/${app.name}" "$@"
                                             <!-- launcher script at root, executable -->
                                             <tarfileset dir="${project.build.directory}/dist/launcher"
                                                         filemode="755"/>
+                                            <!-- resources folder at root alongside the launcher -->
+                                            <tarfileset dir="${project.basedir}/resources"
+                                                        prefix="resources"/>
                                             <!-- app-image bin dir, executable (no prefix: jpackage already nests in UltimateSSetup/) -->
                                             <tarfileset dir="${project.build.directory}/dist/image"
                                                         filemode="755">
