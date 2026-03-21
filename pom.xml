@@ -95,7 +95,9 @@
                 </executions>
             </plugin>
 
-            <!-- 3. Copy resources/ into the jpackage input folder -->
+            <!-- 3. Copy resources/ and fat JAR into a clean app-input dir.
+                     jpackage -input must contain ONLY what goes into the app —
+                     pointing it at target/ causes it to recurse into itself. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -114,6 +116,26 @@
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 4. Copy fat JAR into app-input after shade produces it -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-jar-to-input</id>
+                        <phase>package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                      todir="${project.build.directory}/app-input"/>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>
@@ -157,12 +179,9 @@
                                     <appVersion>${app.version}</appVersion>
                                     <vendor>com.example</vendor>
                                     <description>Ultimate S Setup Tool</description>
-                                    <input>${project.build.directory}</input>
+                                    <input>${project.build.directory}/app-input</input>
                                     <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
                                     <mainClass>${main.class}</mainClass>
-                                    <appContent>
-                                        <appContent>${project.build.directory}/app-input/resources</appContent>
-                                    </appContent>
                                     <destination>${project.build.directory}/dist/image</destination>
                                     <type>APP_IMAGE</type>
                                     <javaOptions>
@@ -226,12 +245,9 @@
                                     <appVersion>${app.version}</appVersion>
                                     <vendor>com.example</vendor>
                                     <description>Ultimate S Setup Tool</description>
-                                    <input>${project.build.directory}</input>
+                                    <input>${project.build.directory}/app-input</input>
                                     <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
                                     <mainClass>${main.class}</mainClass>
-                                    <appContent>
-                                        <appContent>${project.build.directory}/app-input/resources</appContent>
-                                    </appContent>
                                     <destination>${project.build.directory}/dist/image</destination>
                                     <type>APP_IMAGE</type>
                                     <icon>${project.basedir}/assets/Ultimate S Setup.ico</icon>
@@ -288,12 +304,9 @@
                                     <appVersion>${app.version}</appVersion>
                                     <vendor>com.example</vendor>
                                     <description>Ultimate S Setup Tool</description>
-                                    <input>${project.build.directory}</input>
+                                    <input>${project.build.directory}/app-input</input>
                                     <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
                                     <mainClass>${main.class}</mainClass>
-                                    <appContent>
-                                        <appContent>${project.build.directory}/app-input/resources</appContent>
-                                    </appContent>
                                     <destination>${project.build.directory}/dist/image</destination>
                                     <type>APP_IMAGE</type>
                                     <javaOptions>
