@@ -1,4 +1,4 @@
-name: Build Native Installers
+name: Build Native Executables
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
   # ── LINUX ──────────────────────────────────────────────────────────────
   build-linux:
-    name: Linux (.deb + .rpm)
+    name: Linux
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,22 +23,19 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Install rpm-build (needed for .rpm)
-        run: sudo apt-get install -y rpm
-
-      - name: Build Linux packages
+      - name: Build Linux app-image
         run: mvn clean package -P linux -DskipTests
 
-      - name: Upload Linux artifacts
+      - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linux-packages
-          path: target/dist/linux/
+          name: linux
+          path: target/dist/out/UltimateSSetup-linux.tar.gz
           retention-days: 30
 
   # ── WINDOWS ────────────────────────────────────────────────────────────
   build-windows:
-    name: Windows (.exe)
+    name: Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -50,19 +47,19 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build Windows installer
+      - name: Build Windows app-image
         run: mvn clean package -P windows -DskipTests
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
-          path: target/dist/windows/
+          name: windows
+          path: target/dist/out/UltimateSSetup-windows.zip
           retention-days: 30
 
   # ── macOS ───────────────────────────────────────────────────────────────
   build-mac:
-    name: macOS (.dmg)
+    name: macOS
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -74,20 +71,17 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build macOS disk image
+      - name: Build macOS app-image
         run: mvn clean package -P mac -DskipTests
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mac-dmg
-          path: target/dist/mac/
+          name: mac
+          path: target/dist/out/UltimateSSetup-mac.zip
           retention-days: 30
 
   # ── RELEASE ─────────────────────────────────────────────────────────────
-  # Runs after all three builds succeed. Creates a GitHub Release and
-  # attaches all three installers to it.
-  # Only runs on pushes to main/master (not on pull requests).
   release:
     name: Create Release
     needs: [ build-linux, build-windows, build-mac ]
@@ -100,32 +94,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Download all three sets of build artifacts into separate folders
-      - name: Download Linux packages
+      - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: linux-packages
-          path: dist/linux
+          name: linux
+          path: dist/
 
-      - name: Download Windows installer
+      - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: windows-installer
-          path: dist/windows
+          name: windows
+          path: dist/
 
-      - name: Download macOS disk image
+      - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: mac-dmg
-          path: dist/mac
+          name: mac
+          path: dist/
 
-      # Build a short tag like "build-20260321-abc1234" from the date + commit SHA
       - name: Compute release tag
         id: tag
         run: |
           echo "tag=build-$(date +'%Y%m%d')-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
 
-      # Create the release and upload every file found in dist/
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -135,13 +126,15 @@ jobs:
             Automated build from commit ${{ github.sha }}
 
             **Downloads**
-            | Platform | File |
-            |----------|------|
-            | Linux | `.deb` and `.rpm` below |
-            | Windows | `.exe` installer below |
-            | macOS | `.dmg` below |
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Linux | `UltimateSSetup-linux.tar.gz` | Extract, then run `UltimateSSetup/bin/UltimateSSetup` |
+            | Windows | `UltimateSSetup-windows.zip` | Extract, then run `UltimateSSetup/UltimateSSetup.exe` |
+            | macOS | `UltimateSSetup-mac.zip` | Extract, then double-click `UltimateSSetup.app` |
+
+            Place your `ultimate/` folder in the same directory as the executable before running.
           files: |
-            dist/linux/*
-            dist/windows/*
-            dist/mac/*
-          fail_on_unmatched_files: false
+            dist/UltimateSSetup-linux.tar.gz
+            dist/UltimateSSetup-windows.zip
+            dist/UltimateSSetup-mac.zip
+          fail_on_unmatched_files: true

@@ -7,7 +7,7 @@
     <groupId>com.example</groupId>
     <artifactId>ult-s-setup</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Ultimate S Setup</name>
+    <n>Ultimate S Setup</n>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -15,6 +15,7 @@
         <javafx.version>21.0.2</javafx.version>
         <app.version>1.0</app.version>
         <main.class>com.example.ultssetup.Main</main.class>
+        <app.name>UltimateSSetup</app.name>
     </properties>
 
     <dependencies>
@@ -94,7 +95,7 @@
                 </executions>
             </plugin>
 
-            <!-- 3. Copy resources/ folder so jpackage can embed it -->
+            <!-- 3. Copy resources/ into the jpackage input folder -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -124,27 +125,14 @@
     <!--
     ====================================================================
     PROFILES — one per target platform.
+    Each produces a portable app-image (self-contained folder with
+    bundled JRE + executable) then zips it up for distribution.
+    Users extract the zip anywhere they like and run the executable
+    directly — no installation required.
 
-    Build commands (all run from Linux):
-
-      Linux native packages (.deb + .rpm):
-        mvn package -P linux
-
-      Windows installer (.exe):
-        mvn package -P windows
-        NOTE: jpackage can only build Windows installers ON Windows.
-              To cross-compile from Linux, build the fat JAR first
-              (mvn package -P windows skips jpackage if not on Windows),
-              then run jpackage manually on a Windows machine, or use
-              a CI runner with a Windows agent.
-
-      macOS disk image (.dmg):
-        mvn package -P mac
-        NOTE: same caveat — jpackage requires running on macOS for .dmg.
-
-    Build all at once (fat JAR + Linux native; Windows/Mac jpackage
-    steps are no-ops when not on the matching OS):
-        mvn package -P linux,windows,mac
+      ./build.sh linux     → target/dist/UltimateSSetup-linux.tar.gz
+      ./build.sh windows   → target/dist/UltimateSSetup-windows.zip
+      ./build.sh mac       → target/dist/UltimateSSetup-mac.zip
     ====================================================================
     -->
 
@@ -160,13 +148,12 @@
                         <artifactId>jpackage-maven-plugin</artifactId>
                         <version>1.6.5</version>
                         <executions>
-                            <!-- .deb package -->
                             <execution>
-                                <id>jpackage-linux-deb</id>
+                                <id>jpackage-linux</id>
                                 <phase>package</phase>
                                 <goals><goal>jpackage</goal></goals>
                                 <configuration>
-                                    <name>UltimateSSetup</name>
+                                    <n>${app.name}</n>
                                     <appVersion>${app.version}</appVersion>
                                     <vendor>com.example</vendor>
                                     <description>Ultimate S Setup Tool</description>
@@ -176,38 +163,42 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <destination>${project.build.directory}/dist/linux</destination>
-                                    <type>DEB</type>
-                                    <linuxShortcut>true</linuxShortcut>
-                                    <linuxMenuGroup>Utilities</linuxMenuGroup>
+                                    <destination>${project.build.directory}/dist/image</destination>
+                                    <type>APP_IMAGE</type>
                                     <javaOptions>
                                         <javaOption>-Dfile.encoding=UTF-8</javaOption>
                                     </javaOptions>
                                 </configuration>
                             </execution>
-                            <!-- .rpm package -->
+                        </executions>
+                    </plugin>
+
+                    <!-- Zip the app-image into a distributable tar.gz -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
                             <execution>
-                                <id>jpackage-linux-rpm</id>
+                                <id>tar-linux</id>
                                 <phase>package</phase>
-                                <goals><goal>jpackage</goal></goals>
+                                <goals><goal>run</goal></goals>
                                 <configuration>
-                                    <name>UltimateSSetup</name>
-                                    <appVersion>${app.version}</appVersion>
-                                    <vendor>com.example</vendor>
-                                    <description>Ultimate S Setup Tool</description>
-                                    <input>${project.build.directory}</input>
-                                    <mainJar>${project.artifactId}-${project.version}.jar</mainJar>
-                                    <mainClass>${main.class}</mainClass>
-                                    <appContent>
-                                        <appContent>${project.build.directory}/app-input/resources</appContent>
-                                    </appContent>
-                                    <destination>${project.build.directory}/dist/linux</destination>
-                                    <type>RPM</type>
-                                    <linuxShortcut>true</linuxShortcut>
-                                    <linuxMenuGroup>Utilities</linuxMenuGroup>
-                                    <javaOptions>
-                                        <javaOption>-Dfile.encoding=UTF-8</javaOption>
-                                    </javaOptions>
+                                    <target>
+                                        <mkdir dir="${project.build.directory}/dist/out"/>
+                                        <tar destfile="${project.build.directory}/dist/out/${app.name}-linux.tar.gz"
+                                             compression="gzip" longfile="posix">
+                                            <tarfileset dir="${project.build.directory}/dist/image"
+                                                        prefix="${app.name}"
+                                                        filemode="755">
+                                                <include name="${app.name}/bin/**"/>
+                                            </tarfileset>
+                                            <tarfileset dir="${project.build.directory}/dist/image"
+                                                        prefix="${app.name}">
+                                                <exclude name="${app.name}/bin/**"/>
+                                            </tarfileset>
+                                        </tar>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
@@ -231,7 +222,7 @@
                                 <phase>package</phase>
                                 <goals><goal>jpackage</goal></goals>
                                 <configuration>
-                                    <name>UltimateSSetup</name>
+                                    <n>${app.name}</n>
                                     <appVersion>${app.version}</appVersion>
                                     <vendor>com.example</vendor>
                                     <description>Ultimate S Setup Tool</description>
@@ -241,15 +232,35 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <destination>${project.build.directory}/dist/windows</destination>
-                                    <type>EXE</type>
-                                    <winDirChooser>true</winDirChooser>
-                                    <winMenu>true</winMenu>
-                                    <winShortcut>true</winShortcut>
+                                    <destination>${project.build.directory}/dist/image</destination>
+                                    <type>APP_IMAGE</type>
                                     <icon>${project.basedir}/assets/Ultimate S Setup.ico</icon>
                                     <javaOptions>
                                         <javaOption>-Dfile.encoding=UTF-8</javaOption>
                                     </javaOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Zip the app-image into a distributable zip -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>zip-windows</id>
+                                <phase>package</phase>
+                                <goals><goal>run</goal></goals>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${project.build.directory}/dist/out"/>
+                                        <zip destfile="${project.build.directory}/dist/out/${app.name}-windows.zip">
+                                            <zipfileset dir="${project.build.directory}/dist/image"
+                                                        prefix="${app.name}"/>
+                                        </zip>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
@@ -273,7 +284,7 @@
                                 <phase>package</phase>
                                 <goals><goal>jpackage</goal></goals>
                                 <configuration>
-                                    <name>UltimateSSetup</name>
+                                    <n>${app.name}</n>
                                     <appVersion>${app.version}</appVersion>
                                     <vendor>com.example</vendor>
                                     <description>Ultimate S Setup Tool</description>
@@ -283,11 +294,41 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <destination>${project.build.directory}/dist/mac</destination>
-                                    <type>DMG</type>
+                                    <destination>${project.build.directory}/dist/image</destination>
+                                    <type>APP_IMAGE</type>
                                     <javaOptions>
                                         <javaOption>-Dfile.encoding=UTF-8</javaOption>
                                     </javaOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Zip the .app bundle into a distributable zip -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>zip-mac</id>
+                                <phase>package</phase>
+                                <goals><goal>run</goal></goals>
+                                <configuration>
+                                    <target>
+                                        <mkdir dir="${project.build.directory}/dist/out"/>
+                                        <zip destfile="${project.build.directory}/dist/out/${app.name}-mac.zip">
+                                            <zipfileset dir="${project.build.directory}/dist/image"
+                                                        prefix="${app.name}"
+                                                        filemode="755">
+                                                <include name="**/*.app/Contents/MacOS/**"/>
+                                            </zipfileset>
+                                            <zipfileset dir="${project.build.directory}/dist/image"
+                                                        prefix="${app.name}">
+                                                <exclude name="**/*.app/Contents/MacOS/**"/>
+                                            </zipfileset>
+                                        </zip>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
