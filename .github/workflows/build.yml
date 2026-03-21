@@ -24,7 +24,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build Linux app-image
-        run: mvn clean package -P linux -DskipTests
+        run: mvn clean verify -P linux -DskipTests
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -48,7 +48,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build Windows app-image
-        run: mvn clean package -P windows -DskipTests
+        run: mvn clean verify -P windows -DskipTests
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -72,7 +72,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build macOS app-image
-        run: mvn clean package -P mac -DskipTests
+        run: mvn clean verify -P mac -DskipTests
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
