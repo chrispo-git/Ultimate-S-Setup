@@ -176,7 +176,7 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <dest>${project.build.directory}/dist/linux</dest>
+                                    <destination>${project.build.directory}/dist/linux</destination>
                                     <type>DEB</type>
                                     <linuxShortcut>true</linuxShortcut>
                                     <linuxMenuGroup>Utilities</linuxMenuGroup>
@@ -201,7 +201,7 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <dest>${project.build.directory}/dist/linux</dest>
+                                    <destination>${project.build.directory}/dist/linux</destination>
                                     <type>RPM</type>
                                     <linuxShortcut>true</linuxShortcut>
                                     <linuxMenuGroup>Utilities</linuxMenuGroup>
@@ -241,7 +241,7 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <dest>${project.build.directory}/dist/windows</dest>
+                                    <destination>${project.build.directory}/dist/windows</destination>
                                     <type>EXE</type>
                                     <winDirChooser>true</winDirChooser>
                                     <winMenu>true</winMenu>
@@ -283,7 +283,7 @@
                                     <appContent>
                                         <appContent>${project.build.directory}/app-input/resources</appContent>
                                     </appContent>
-                                    <dest>${project.build.directory}/dist/mac</dest>
+                                    <destination>${project.build.directory}/dist/mac</destination>
                                     <type>DMG</type>
                                     <javaOptions>
                                         <javaOption>-Dfile.encoding=UTF-8</javaOption>
