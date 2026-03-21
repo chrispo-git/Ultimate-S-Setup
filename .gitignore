@@ -41,3 +41,4 @@ out/
 
 ### Project-specific ###
 target/dist/
+/.metals
