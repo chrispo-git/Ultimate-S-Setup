@@ -5,7 +5,6 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  # Also lets you trigger a build manually from the GitHub Actions tab
   workflow_dispatch:
 
 jobs:
@@ -84,3 +83,65 @@ jobs:
           name: mac-dmg
           path: target/dist/mac/
           retention-days: 30
+
+  # ── RELEASE ─────────────────────────────────────────────────────────────
+  # Runs after all three builds succeed. Creates a GitHub Release and
+  # attaches all three installers to it.
+  # Only runs on pushes to main/master (not on pull requests).
+  release:
+    name: Create Release
+    needs: [ build-linux, build-windows, build-mac ]
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Download all three sets of build artifacts into separate folders
+      - name: Download Linux packages
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-packages
+          path: dist/linux
+
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: dist/windows
+
+      - name: Download macOS disk image
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-dmg
+          path: dist/mac
+
+      # Build a short tag like "build-20260321-abc1234" from the date + commit SHA
+      - name: Compute release tag
+        id: tag
+        run: |
+          echo "tag=build-$(date +'%Y%m%d')-$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      # Create the release and upload every file found in dist/
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Build ${{ steps.tag.outputs.tag }}"
+          body: |
+            Automated build from commit ${{ github.sha }}
+
+            **Downloads**
+            | Platform | File |
+            |----------|------|
+            | Linux | `.deb` and `.rpm` below |
+            | Windows | `.exe` installer below |
+            | macOS | `.dmg` below |
+          files: |
+            dist/linux/*
+            dist/windows/*
+            dist/mac/*
+          fail_on_unmatched_files: false
