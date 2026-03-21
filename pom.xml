@@ -119,7 +119,7 @@
             </plugin>
 
             <!-- 4. Copy resources/ and fat JAR into a clean app-input dir.
-                     jpackage -input must contain ONLY what goes into the app —
+                     jpackage input must contain ONLY what goes into the app —
                      pointing it at target/ causes it to recurse into itself. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -195,7 +195,7 @@
                         </executions>
                     </plugin>
 
-                    <!-- Zip the app-image into a distributable tar.gz -->
+                    <!-- Write the launcher .sh then tar everything up -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -208,15 +208,26 @@
                                 <configuration>
                                     <target>
                                         <mkdir dir="${project.build.directory}/dist/out"/>
+                                        <!-- Write the launcher script -->
+                                        <echo file="${project.build.directory}/dist/launcher/${app.name}.sh">#!/bin/bash
+# Launcher — drop this next to the ${app.name}/ folder and run it.
+DIR="$(cd "$(dirname "$0")" &amp;&amp; pwd)"
+exec "$DIR/${app.name}/bin/${app.name}" "$@"
+</echo>
+                                        <chmod file="${project.build.directory}/dist/launcher/${app.name}.sh" perm="755"/>
+                                        <!-- tar: launcher .sh at the root, app-image in a subfolder -->
                                         <tar destfile="${project.build.directory}/dist/out/${app.name}-linux.tar.gz"
                                              compression="gzip" longfile="posix">
+                                            <!-- launcher script at root, executable -->
+                                            <tarfileset dir="${project.build.directory}/dist/launcher"
+                                                        filemode="755"/>
+                                            <!-- app-image bin dir, executable (no prefix: jpackage already nests in UltimateSSetup/) -->
                                             <tarfileset dir="${project.build.directory}/dist/image"
-                                                        prefix="${app.name}"
                                                         filemode="755">
                                                 <include name="${app.name}/bin/**"/>
                                             </tarfileset>
-                                            <tarfileset dir="${project.build.directory}/dist/image"
-                                                        prefix="${app.name}">
+                                            <!-- everything else in app-image -->
+                                            <tarfileset dir="${project.build.directory}/dist/image">
                                                 <exclude name="${app.name}/bin/**"/>
                                             </tarfileset>
                                         </tar>

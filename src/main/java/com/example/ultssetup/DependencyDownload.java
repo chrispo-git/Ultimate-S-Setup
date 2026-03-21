@@ -5,6 +5,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
@@ -135,13 +136,23 @@ public class DependencyDownload
     }
     
     public static void getOSE()  throws IOException, URISyntaxException {
+        String dlURL =  GithubAPIReader.getResultsGB("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=549058&fields=Files().aFiles()");
         
-        HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/blu-dev/one-slot-effects/releases/latest");
-        String latestVer = apiMap.get("tag_name");
-        String dlURL = "https://github.com/blu-dev/one-slot-effects/releases/download/"+latestVer+"/libone_slot_eff.nro";
         try (InputStream  in = new URI(dlURL).toURL().openStream()) {
-            Files.copy(in, Paths.get("downloads/libone_slot_eff.nro"), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(Paths.get("downloads/libone_slot_eff.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libone_slot_eff.nro"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(in, Paths.get("downloads/ose.zip"), StandardCopyOption.REPLACE_EXISTING);
+            File directory = new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins");
+            if (!directory.isDirectory()) {
+                directory.mkdirs();
+            }
+            unzip("downloads/ose.zip", "downloads");
+            Path nro = Files.walk(Paths.get("downloads"))
+                .filter(p -> p.getFileName().toString().equals("libone_slot_eff.nro"))
+                .findFirst()
+                .orElseThrow(() -> new IOException("libone_slot_eff.nro not found in zip"));
+
+            Files.copy(nro,
+                Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libone_slot_eff.nro"),
+                StandardCopyOption.REPLACE_EXISTING);
         }
     }
     
