@@ -74,6 +74,7 @@
                         <configuration>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <outputDirectory>${project.build.directory}/app-input</outputDirectory>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -116,26 +117,6 @@
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- 4. Copy fat JAR into app-input after shade produces it -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-jar-to-input</id>
-                        <phase>package</phase>
-                        <goals><goal>run</goal></goals>
-                        <configuration>
-                            <target>
-                                <copy file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-                                      todir="${project.build.directory}/app-input"/>
-                            </target>
                         </configuration>
                     </execution>
                 </executions>
