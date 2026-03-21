@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.io.BufferedReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.nio.file.Path;
 
@@ -23,7 +24,7 @@ public class RomfsHandler
     private RomfsHandler()
     {
     }
-    static ArrayList<> paramException = (List.of(
+    static List<String> paramException = (List.of(
             "donkey"
         ));
     /**
