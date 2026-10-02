@@ -22,7 +22,7 @@ public class CharEnabler
         CharHandler characters = CharHandler.getInstance();
         //FighterParamHandler.updateFighterParam(characters.getExcluded());
         //ConfigParamHandler.updateConfigParam(characters.getExcluded());
-        FlagHandler.updateFlags(characters.getIncluded());
+        //FlagHandler.updateFlags(characters.getIncluded());
         RomfsHandler.updateRomfs(characters.getIncluded(), characters.getExcluded());
     }
 }
