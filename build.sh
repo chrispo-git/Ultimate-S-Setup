@@ -13,8 +13,7 @@
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
-MVN="./mvnw"
-if ! [ -x "$MVN" ]; then MVN="mvn"; fi
+MVN="mvn"
 
 TARGET="${1:-linux}"
 
