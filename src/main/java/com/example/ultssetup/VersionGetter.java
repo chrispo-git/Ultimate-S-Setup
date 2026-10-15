@@ -12,12 +12,6 @@ import java.net.URL;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 
-/**
- * Write a description of class VersionHandler here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class VersionGetter
 {
     // instance variables - replace the example below with your own
