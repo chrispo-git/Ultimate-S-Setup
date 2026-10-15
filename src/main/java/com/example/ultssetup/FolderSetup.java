@@ -10,12 +10,18 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Installs the prepared atmosphere/ and ultimate/ folders onto an SD card or emulator sdmc folder.
+ */
 public class FolderSetup
 {
     private FolderSetup()
     {
     }
     
+    /**
+     * Installs to the given root, reporting each step through onProgress. Stops at the first failure.
+     */
     public static void setup(String pathRoot, Consumer<String> onProgress) throws IOException
     {
         if (pathRoot.endsWith("/")) pathRoot = pathRoot.substring(0,pathRoot.length()-1);
@@ -50,6 +56,9 @@ public class FolderSetup
         CopyDir.copyDirectory(Paths.get("ultimate/"), Paths.get(pathRoot+"/ultimate/"), file -> onProgress.accept("Copying " + file));
     }
 
+    /**
+     * Deletes everything inside dir, but not dir itself. Stops at the first failure.
+     */
     private static void deleteContents(Path dir) throws IOException {
         if (!Files.isDirectory(dir)) return;
         List<Path> paths;

@@ -2,10 +2,7 @@ package com.example.ultssetup;
 import java.io.File;
 
 /**
- * Write a description of class DirectoryDeleter here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Deletes the contents of directories.
  */
 public class DirectoryDeleter
 {
@@ -13,6 +10,9 @@ public class DirectoryDeleter
     {
     }
 
+    /**
+     * Deletes everything inside the given directory, but not the directory itself. Failed deletes are ignored.
+     */
     public static void deleteDirectory(File file)
     {
         if (!(file.isFile()) && !(file.isDirectory())) return;

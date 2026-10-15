@@ -4,11 +4,16 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.function.Consumer;
 
+/**
+ * Copies directory trees.
+ */
 public class CopyDir
 {
     private CopyDir()
     {
-    }/**
+    }
+
+    /**
      * Copies all files from the source directory to the destination directory.
      * Overwrites existing files and merges directories.
      *

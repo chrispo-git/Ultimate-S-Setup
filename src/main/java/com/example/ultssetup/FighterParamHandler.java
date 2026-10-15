@@ -7,6 +7,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+/**
+ * Edits fighter_param.prcxml to remove entries for disabled fighters.
+ */
 public class FighterParamHandler
 {
 
@@ -14,6 +17,9 @@ public class FighterParamHandler
     {
     }
     
+    /**
+     * Rewrites fighter_param.prcxml with no fighters removed.
+     */
     public static void updateFighterParam() {
         updateFighterParam(new String[0]);
     }

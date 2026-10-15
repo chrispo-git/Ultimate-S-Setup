@@ -6,11 +6,17 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
+/**
+ * Simple readers for the GitHub and GameBanana APIs.
+ */
 public class GithubAPIReader
 {
     private GithubAPIReader()
     {
     }
+    /**
+     * Returns the file download URL from a GameBanana API response.
+     */
     public static String getResultsGB(String urlString) throws IOException
     {
         URL url = new URL(urlString);
@@ -38,6 +44,9 @@ public class GithubAPIReader
         return noQuotes;
     }
     
+    /**
+     * Fetches a GitHub API URL and returns its fields as a simple key/value map.
+     */
     public static HashMap<String, String> getResults(String urlString) throws IOException
     {
         URL url = new URL(urlString);

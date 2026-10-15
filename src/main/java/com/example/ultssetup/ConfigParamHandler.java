@@ -8,11 +8,17 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+/**
+ * Edits config_param.toml to remove entries for disabled fighters.
+ */
 public class ConfigParamHandler {
 
     private ConfigParamHandler()
     {
     }
+    /**
+     * Rewrites config_param.toml with no fighters removed.
+     */
     public static void updateConfigParam() {
         updateConfigParam(new String[0]);
     }

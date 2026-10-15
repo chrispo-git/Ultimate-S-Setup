@@ -4,6 +4,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
+/**
+ * A Menu that fires onAction when its title is clicked, so it can act like a button in a MenuBar.
+ */
 public class ClickableMenu extends Menu {
     
     private final Label label;

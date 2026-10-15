@@ -16,10 +16,16 @@ import java.io.File;
 
 import atlantafx.base.theme.PrimerDark;
 
+/**
+ * The JavaFX application: builds the main window and applies the theme.
+ */
 public class Display extends Application
 {
     private static Stage stage;
 
+    /**
+     * Builds and shows the main window, then checks for updates.
+     */
     @Override
     public void start(Stage stage) {
         this.stage = stage;
@@ -50,9 +56,15 @@ public class Display extends Application
         
         CheckLatest.checkLatestVersion();
     }
+    /**
+     * Returns the main window, e.g. to own dialogs.
+     */
     public static Stage getStage() {
         return stage;
     }
+    /**
+     * Launches the JavaFX application.
+     */
     public static void main(String[] args) {
         launch(args);
     }

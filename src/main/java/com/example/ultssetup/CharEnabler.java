@@ -1,9 +1,6 @@
 package com.example.ultssetup;
 /**
- * Write a description of class CharEnabler here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Applies the current fighter selection to the installed mod files.
  */
 public class CharEnabler
 {

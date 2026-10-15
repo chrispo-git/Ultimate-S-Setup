@@ -11,10 +11,7 @@ import java.util.List;
 import java.nio.file.Path;
 
 /**
- * Write a description of class RomfsHandler here.
- *
- * @author (your name)
- * @version (a version number or a date)
+ * Enables and disables fighters' mod files by renaming their folders.
  */
 public class RomfsHandler
 {

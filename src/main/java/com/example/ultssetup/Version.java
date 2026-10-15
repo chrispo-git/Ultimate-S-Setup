@@ -8,18 +8,27 @@ public class Version
     private final int minor;
     private final int patch;
 
+    /**
+     * Creates the version major.minor.patch.
+     */
     public Version(int major, int minor, int patch)
     {
         this.major = major;
         this.minor = minor;
         this.patch = patch;
     }
+    /**
+     * Creates the version major.0.0.
+     */
     public Version(int major)
     {
         this.major = major;
         this.minor = 0;
         this.patch = 0;
     }
+    /**
+     * Creates the version major.minor.0.
+     */
     public Version(int major, int minor)
     {
         this.major = major;
@@ -27,6 +36,9 @@ public class Version
         this.patch = 0;
     }
     
+    /**
+     * Two versions are equal if major, minor and patch all match.
+     */
     @Override 
     public boolean equals(Object o) {
         if (!(o instanceof Version)) return false;
@@ -42,6 +54,9 @@ public class Version
         return true;
     }
     
+    /**
+     * Returns true if this version is newer than other.
+     */
     public boolean greaterThan(Version other) {
         int[] otherArr = other.toArray();
         int[] thisArr = this.toArray();
@@ -53,6 +68,9 @@ public class Version
         return true;
     }
     
+    /**
+     * Returns true if this version is older than other.
+     */
     public boolean lessThan(Version other) {
         int[] otherArr = other.toArray();
         int[] thisArr = this.toArray();
@@ -64,15 +82,24 @@ public class Version
         return false;
     }
     
+    /**
+     * Returns the version as {major, minor, patch}.
+     */
     public int[] toArray() {
         return new int[]{major, minor, patch};
     }
     
+    /**
+     * Formats the version as v.major.minor.patch.
+     */
     @Override
     public String toString() {
         return "v."+major+"."+minor+"."+patch;
     }
     
+    /**
+     * Parses strings like "v.1.2.3" or "1.2-3". Missing or invalid parts become 0.
+     */
     public static Version parse(String str) {
         String newStr = str.replace(" ", "");
         newStr = newStr.replace("v.", "");

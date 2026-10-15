@@ -5,12 +5,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.HashMap;
 
+/**
+ * Gets the installed and latest released versions of Ultimate S.
+ */
 public class VersionGetter
 {
     private VersionGetter()
     {
     }
     
+    /**
+     * Returns the installed version from version.txt, or v.0.0.1 if it can't be read.
+     */
     public static Version getLocalVer() {
         try {
             List<String> versionTxt = Files.readAllLines(Paths.get("ultimate/mods/Ultimate S Arcropolis/version.txt"));
@@ -20,6 +26,9 @@ public class VersionGetter
         }
     }
     
+    /**
+     * Returns the latest release version on GitHub, or v.0.0.0 if it can't be fetched.
+     */
     public static Version getRemoteVer() {
         String urlString = "https://api.github.com/repos/chrispo-git/ult-s/releases/latest";
         try {

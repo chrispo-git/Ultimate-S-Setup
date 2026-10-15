@@ -33,6 +33,9 @@ import java.util.concurrent.TimeoutException;
 import javafx.stage.DirectoryChooser;
 import java.io.File;
 
+/**
+ * The main panel: fighter toggles, help text, and the dependency and install actions.
+ */
 public class CharacterPane
 {
     private final CharHandler charHandler = CharHandler.getInstance();
@@ -47,6 +50,9 @@ public class CharacterPane
     {
         
     }
+    /**
+     * Builds the panel's layout.
+     */
     public Pane getPane() {
         GridPane pane = new GridPane();
         pane.setPadding(new Insets(10, 10, 10, 10));
@@ -139,6 +145,9 @@ public class CharacterPane
         
         return root;
     }
+    /**
+     * Creates an enabled toggle button for one fighter.
+     */
     private ToggleButton createFighterToggle(String fighter) {
         ToggleButton toggleButton = new ToggleButton();
         toggleButton.getStyleClass().add("fighter-toggle");
@@ -153,6 +162,9 @@ public class CharacterPane
         return toggleButton;
     }
 
+    /**
+     * Enables or disables a fighter and swaps its icon to match.
+     */
     private void handleToggle(String fighter, boolean isSelected, ToggleButton btn) {
         Image icon;
         if (isSelected) {
@@ -166,7 +178,7 @@ public class CharacterPane
     }
 
     /**
-     * 
+     * Enables every fighter toggle in the list.
      */
     private void setAllOn(ObservableList<Node> buttons) {
         for(Node i : buttons) {
@@ -177,7 +189,7 @@ public class CharacterPane
     }
 
     /**
-     * 
+     * Disables every fighter toggle in the list.
      */
     private void setAllOff(ObservableList<Node> buttons) {
         for(Node i : buttons) {
@@ -187,10 +199,16 @@ public class CharacterPane
         }
     }
     
+    /**
+     * One step of the dependency download.
+     */
     private interface DependencyStep {
         void run() throws IOException, URISyntaxException;
     }
 
+    /**
+     * Downloads all dependencies in the background, with a timeout on each step.
+     */
     private void grabDependencies(Label lbl) {
         Task<Void> task = new Task<>() {
             private final ExecutorService stepExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -201,6 +219,9 @@ public class CharacterPane
             private final int totalSteps = 9;
             private int stepsDone = 0;
 
+            /**
+             * Runs one step with a timeout. On failure, reports which step failed and returns false.
+             */
             private boolean runStep(String name, DependencyStep step, String doneMsg) {
                 Future<?> future = stepExecutor.submit(() -> { step.run(); return null; });
                 try {
@@ -253,13 +274,18 @@ public class CharacterPane
         dependencyTask.start();
     }
     
-    // shows a task's messages in the status label, and its progress in the bar while it runs
+    /**
+     * Shows a task's messages in the status label, and its progress in the bar while it runs.
+     */
     private void trackTask(Task<?> task, Label lbl) {
         lbl.textProperty().bind(task.messageProperty());
         progressBar.progressProperty().bind(task.progressProperty());
         progressBar.visibleProperty().bind(task.runningProperty());
     }
 
+    /**
+     * Saves the fighter selection to the mod files in the background.
+     */
     private void updateChars(Label lbl) {
         Task<Void> task = new Task<>() {
             @Override public Void call() {
@@ -277,6 +303,9 @@ public class CharacterPane
         new Thread(task).start();
     }
     
+    /**
+     * Asks for an install folder, then installs Ultimate S there in the background.
+     */
     private void installToFolder(Label lbl) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Choose install directory (root of SD Card / sdmc folder)");

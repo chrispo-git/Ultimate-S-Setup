@@ -20,6 +20,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 
+/**
+ * Downloads Skyline, ARCropolis and the other plugins Ultimate S needs.
+ */
 public class DependencyDownload
 {
     public static final int BUFFER_SIZE = 4096;
@@ -31,6 +34,9 @@ public class DependencyDownload
     {
     }
 
+    /**
+     * Opens a download with connect and read timeouts.
+     */
     private static InputStream openStream(String dlURL) throws IOException, URISyntaxException {
         URLConnection connection = new URI(dlURL).toURL().openConnection();
         connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
@@ -38,6 +44,9 @@ public class DependencyDownload
         return connection.getInputStream();
     }
 
+    /**
+     * Creates the downloads and plugin folders if they're missing.
+     */
     public static void setupFolders() {
         String[] directories = new String[]{
             "downloads",
@@ -53,6 +62,9 @@ public class DependencyDownload
         
     }
     
+    /**
+     * Clears out downloads/ and the previous atmosphere build.
+     */
     public static void emptyFolders() {
         String[] directories = new String[]{
             "downloads",
@@ -68,6 +80,9 @@ public class DependencyDownload
     }
     
     
+    /**
+     * Downloads Skyline and extracts it into atmosphere/.
+     */
     public static void getSkyline() throws IOException, URISyntaxException{
         String dlURL = "https://github.com/skyline-dev/skyline/releases/download/beta/skyline.zip";
         try (InputStream  in = openStream(dlURL)) {
@@ -76,6 +91,9 @@ public class DependencyDownload
         unzip("downloads/skyline.zip", "atmosphere/contents/01006A800016E000");
     }
     
+    /**
+     * Downloads the latest NRO Hook plugin.
+     */
     public static void getNROHook() throws IOException, URISyntaxException {
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/ultimate-research/nro-hook-plugin/releases/latest");
         String latestVer = apiMap.get("tag_name");
@@ -86,6 +104,9 @@ public class DependencyDownload
         }
     }
     
+    /**
+     * Downloads the latest Smashline plugin.
+     */
     public static void getSmashlineHook() throws IOException, URISyntaxException {
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/HDR-Development/smashline/releases/latest");
         String latestVer = apiMap.get("tag_name");
@@ -96,6 +117,9 @@ public class DependencyDownload
         }
     }
     
+    /**
+     * Downloads the latest param config plugin.
+     */
     public static void getParamConfigHook() throws IOException, URISyntaxException {
         
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/CSharpM7/lib_paramconfig/releases/latest");
@@ -107,6 +131,9 @@ public class DependencyDownload
         }
     }
     
+    /**
+     * Downloads the latest stage config plugin.
+     */
     public static void getStageConfigHook()  throws IOException, URISyntaxException{
         
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/ThatNintendoNerd/stage_config/releases/latest");
@@ -123,6 +150,9 @@ public class DependencyDownload
         }
     }
     
+    /**
+     * Downloads the latest ARCropolis and moves its files into atmosphere/ and ultimate/.
+     */
     public static void getArcropolis()  throws IOException, URISyntaxException {
         
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/Raytwo/ARCropolis/releases/latest");
@@ -149,6 +179,9 @@ public class DependencyDownload
         }
     }
 
+    /**
+     * Moves every file under srcDir to the same relative path under destDir.
+     */
     private static void moveContents(Path srcDir, Path destDir) throws IOException {
         List<Path> files;
         try (Stream<Path> walk = Files.walk(srcDir)) {
@@ -161,6 +194,9 @@ public class DependencyDownload
         }
     }
     
+    /**
+     * Downloads the One Slot Effects plugin from GameBanana.
+     */
     public static void getOSE()  throws IOException, URISyntaxException {
         String dlURL =  GithubAPIReader.getResultsGB("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=549058&fields=Files().aFiles()");
         
@@ -182,6 +218,9 @@ public class DependencyDownload
         }
     }
     
+    /**
+     * Downloads The CSK Collection plugin from GameBanana.
+     */
     public static void getCSK()  throws IOException, URISyntaxException {
         String dlURL =  GithubAPIReader.getResultsGB("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=499008&fields=Files().aFiles()");
         
@@ -195,6 +234,9 @@ public class DependencyDownload
             Files.copy(Paths.get("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libthe_csk_collection.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libthe_csk_collection.nro"), StandardCopyOption.REPLACE_EXISTING);
         }
     }
+    /**
+     * Extracts a zip file into destDirectory.
+     */
     private static void unzip(String zipFilePath, String destDirectory)  throws IOException, URISyntaxException {
             File destDir = new File(destDirectory);
             if (!destDir.exists()) {
@@ -217,6 +259,9 @@ public class DependencyDownload
             zipIn.close();
         
     }
+    /**
+     * Writes the current zip entry to filePath.
+     */
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
         byte[] bytesIn = new byte[BUFFER_SIZE];

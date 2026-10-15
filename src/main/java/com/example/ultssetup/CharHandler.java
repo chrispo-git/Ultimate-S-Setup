@@ -2,6 +2,9 @@ package com.example.ultssetup;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Tracks which fighters are enabled (included) and disabled (excluded). Shared singleton.
+ */
 public class CharHandler
 {
     
@@ -13,6 +16,9 @@ public class CharHandler
     {
         resetChars();
     }
+    /**
+     * Resets every fighter to enabled.
+     */
     public void resetChars() {
         
         included = new ArrayList<>(List.of(
@@ -37,24 +43,36 @@ public class CharHandler
         ));
         excluded = new ArrayList<>();
     }
+    /**
+     * Returns the shared CharHandler, creating it on first use.
+     */
     public static CharHandler getInstance() {
         if (instance == null) instance = new CharHandler();
         
         return instance;
     }
 
+    /**
+     * Returns the enabled fighters.
+     */
     public String[] getIncluded() {
         String[] arr = new String[included.size()];
         arr = included.toArray(arr);
         return arr;
     }
 
+    /**
+     * Returns the disabled fighters.
+     */
     public String[] getExcluded() {
         String[] arr = new String[excluded.size()];
         arr = excluded.toArray(arr);
         return arr;
     }
 
+    /**
+     * Enables the given fighters.
+     */
     public void include(String... includeList) {
         for(String i : includeList) {
             if (excluded.contains(i) && !included.contains(i)) {
@@ -64,6 +82,9 @@ public class CharHandler
         }
     }
 
+    /**
+     * Disables the given fighters.
+     */
     public void exclude(String... includeList) {
         for(String i : includeList) {
             if (included.contains(i) && !excluded.contains(i)) {

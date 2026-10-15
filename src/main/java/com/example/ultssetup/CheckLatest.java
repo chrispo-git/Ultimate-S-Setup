@@ -7,12 +7,18 @@ import java.util.Optional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+/**
+ * Checks GitHub for a newer Ultimate S release.
+ */
 public class CheckLatest
 {
     private CheckLatest()
     {
     }
 
+    /**
+     * If a newer release is on GitHub, asks the user whether to open the downloads page.
+     */
     public static void checkLatestVersion()
     {
         Version localVer = VersionGetter.getLocalVer();
