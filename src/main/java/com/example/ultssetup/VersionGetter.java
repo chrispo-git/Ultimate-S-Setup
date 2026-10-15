@@ -34,9 +34,13 @@ public class VersionGetter
     
     public static Version getRemoteVer() {
         String urlString = "https://api.github.com/repos/chrispo-git/ult-s/releases/latest";
-        HashMap<String, String> apiResponse = GithubAPIReader.getResults(urlString);
-        if (apiResponse == null) return new Version(0);
-        
-        return Version.parse(apiResponse.get("tag_name"));
+        try {
+            HashMap<String, String> apiResponse = GithubAPIReader.getResults(urlString);
+            if (apiResponse == null) return new Version(0);
+
+            return Version.parse(apiResponse.get("tag_name"));
+        } catch(IOException e) {
+            return new Version(0);
+        }
     }
 }

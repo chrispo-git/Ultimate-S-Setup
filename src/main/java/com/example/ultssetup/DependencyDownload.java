@@ -13,9 +13,14 @@ import java.util.zip.ZipInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLConnection;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 
@@ -28,13 +33,23 @@ import javafx.scene.control.Label;
 public class DependencyDownload
 {
     public static final int BUFFER_SIZE = 4096;
+    // kept under CharacterPane's 30s per-step timeout so a stalled connection fails with a real error
+    public static final int CONNECT_TIMEOUT_MS = 10_000;
+    public static final int READ_TIMEOUT_MS = 20_000;
     /**
      * Constructor for objects of class DependencyDownload
      */
     private DependencyDownload()
     {
     }
-    
+
+    private static InputStream openStream(String dlURL) throws IOException, URISyntaxException {
+        URLConnection connection = new URI(dlURL).toURL().openConnection();
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        connection.setReadTimeout(READ_TIMEOUT_MS);
+        return connection.getInputStream();
+    }
+
     public static void setupFolders() {
         String[] directories = new String[]{
             "downloads",
@@ -53,7 +68,8 @@ public class DependencyDownload
     public static void emptyFolders() {
         String[] directories = new String[]{
             "downloads",
-            "atmosphere/contents/01006A800016E000"
+            "atmosphere/contents/01006A800016E000",
+            "ultimate/arcropolis"
         };
         File directory;
         for(String d : directories) {
@@ -66,7 +82,7 @@ public class DependencyDownload
     
     public static void getSkyline() throws IOException, URISyntaxException{
         String dlURL = "https://github.com/skyline-dev/skyline/releases/download/beta/skyline.zip";
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/skyline.zip"), StandardCopyOption.REPLACE_EXISTING);
         }
         unzip("downloads/skyline.zip", "atmosphere/contents/01006A800016E000");
@@ -76,7 +92,7 @@ public class DependencyDownload
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/ultimate-research/nro-hook-plugin/releases/latest");
         String latestVer = apiMap.get("tag_name");
         String dlURL = "https://github.com/ultimate-research/nro-hook-plugin/releases/download/"+latestVer+"/libnro_hook.nro";
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/libnro_hook.nro"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(Paths.get("downloads/libnro_hook.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libnro_hook.nro"), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -86,7 +102,7 @@ public class DependencyDownload
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/HDR-Development/smashline/releases/latest");
         String latestVer = apiMap.get("tag_name");
         String dlURL = "https://github.com/HDR-Development/smashline/releases/download/"+latestVer+"/libsmashline_plugin.nro";
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/libsmashline_plugin.nro"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(Paths.get("downloads/libsmashline_plugin.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libsmashline_plugin.nro"), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -97,7 +113,7 @@ public class DependencyDownload
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/CSharpM7/lib_paramconfig/releases/latest");
         String latestVer = apiMap.get("tag_name");
         String dlURL = "https://github.com/CSharpM7/lib_paramconfig/releases/download/"+latestVer+"/libparam_config.nro";
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/libparam_config.nro"), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(Paths.get("downloads/libparam_config.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libparam_config.nro"), StandardCopyOption.REPLACE_EXISTING);
         }
@@ -108,7 +124,7 @@ public class DependencyDownload
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/ThatNintendoNerd/stage_config/releases/latest");
         String latestVer = apiMap.get("tag_name");
         String dlURL = "https://github.com/ThatNintendoNerd/stage_config/releases/download/"+latestVer+"/release.zip";
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/stageConfig.zip"), StandardCopyOption.REPLACE_EXISTING);
             File directory = new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins");
             if (!directory.isDirectory()) {
@@ -124,21 +140,43 @@ public class DependencyDownload
         HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/Raytwo/ARCropolis/releases/latest");
         String latestVer = apiMap.get("tag_name");        
         String dlURL = "https://github.com/Raytwo/ARCropolis/releases/download/"+latestVer+"/release.zip";
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/arcropolis.zip"), StandardCopyOption.REPLACE_EXISTING);
-            File directory = new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins");
-            if (!directory.isDirectory()) {
-                directory.mkdirs();
+            List<File> directories = Arrays.asList(
+                new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins"),
+                new File("downloads/ultimate/arcropolis/resources/ui/layout"),
+                new File("downloads/ultimate/arcropolis/resources/ui/message")
+            );
+            for (File d : directories) {
+                if (!d.isDirectory()) {
+                    d.mkdirs();
+                }
             }
             unzip("downloads/arcropolis.zip", "downloads");
-            Files.copy(Paths.get("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libarcropolis.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libarcropolis.nro"), StandardCopyOption.REPLACE_EXISTING);
+            Path downloads = Paths.get("downloads");
+            for (File d : directories) {
+                Path src = d.toPath();
+                moveContents(src, downloads.relativize(src));
+            }
+        }
+    }
+
+    private static void moveContents(Path srcDir, Path destDir) throws IOException {
+        List<Path> files;
+        try (Stream<Path> walk = Files.walk(srcDir)) {
+            files = walk.filter(Files::isRegularFile).collect(Collectors.toList());
+        }
+        for (Path file : files) {
+            Path target = destDir.resolve(srcDir.relativize(file));
+            Files.createDirectories(target.getParent());
+            Files.move(file, target, StandardCopyOption.REPLACE_EXISTING);
         }
     }
     
     public static void getOSE()  throws IOException, URISyntaxException {
         String dlURL =  GithubAPIReader.getResultsGB("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=549058&fields=Files().aFiles()");
         
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/ose.zip"), StandardCopyOption.REPLACE_EXISTING);
             File directory = new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins");
             if (!directory.isDirectory()) {
@@ -159,7 +197,7 @@ public class DependencyDownload
     public static void getCSK()  throws IOException, URISyntaxException {
         String dlURL =  GithubAPIReader.getResultsGB("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=499008&fields=Files().aFiles()");
         
-        try (InputStream  in = new URI(dlURL).toURL().openStream()) {
+        try (InputStream  in = openStream(dlURL)) {
             Files.copy(in, Paths.get("downloads/cskCollection.zip"), StandardCopyOption.REPLACE_EXISTING);
             File directory = new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins");
             if (!directory.isDirectory()) {
@@ -176,14 +214,12 @@ public class DependencyDownload
             }
             ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
             ZipEntry entry = zipIn.getNextEntry();
-            // iterates over entries in the zip file
             while (entry != null) {
                 String filePath = destDirectory + File.separator + entry.getName();
                 if (!entry.isDirectory()) {
-                    // if the entry is a file, extracts it
+                    new File(filePath).getParentFile().mkdirs();
                     extractFile(zipIn, filePath);
                 } else {
-                    // if the entry is a directory, make the directory
                     File dir = new File(filePath);
                     dir.mkdirs();
                 }

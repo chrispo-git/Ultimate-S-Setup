@@ -1,10 +1,14 @@
 package com.example.ultssetup;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Write a description of class TroubleShooter here.
@@ -24,36 +28,53 @@ public class FolderSetup
     {
     }
     
-    public static void setup(String pathRoot) throws IOException
+    /**
+     * Installs atmosphere/ and ultimate/ to the given SD card root.
+     * Reports each step through onProgress and throws on the first failure.
+     */
+    public static void setup(String pathRoot, Consumer<String> onProgress) throws IOException
     {
-        String issues = "";
         if (pathRoot.endsWith("/")) pathRoot = pathRoot.substring(0,pathRoot.length()-1);
-        File disabledPlugins = new File(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/disabled_plugins");
-        if (!disabledPlugins.isDirectory()) {
-            disabledPlugins.mkdirs();
+        Path skyline = Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline");
+        Path plugins = skyline.resolve("plugins");
+        Path disabledPlugins = skyline.resolve("disabled_plugins");
+        Files.createDirectories(disabledPlugins);
+
+        String[] conflictingPlugins = new String[]{
+            "libtraining_modpack.nro",
+            "libparam_hook.nro",
+            "libacmd_hook.nro",
+            "libsmashline_hook.nro"
+        };
+        for (String plugin : conflictingPlugins) {
+            if (Files.isRegularFile(plugins.resolve(plugin))) {
+                onProgress.accept("Disabling " + plugin);
+                Files.move(plugins.resolve(plugin), disabledPlugins.resolve(plugin), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
-        if(new File(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libtraining_modpack.nro").isFile()) {
-            Files.move(Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libtraining_modpack.nro"), 
-            Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/disabled_plugins/libtraining_modpack.nro"), StandardCopyOption.REPLACE_EXISTING);
+
+        CopyDir.copyDirectory(Paths.get("atmosphere/"), Paths.get(pathRoot+"/atmosphere/"), file -> onProgress.accept("Copying " + file));
+        String[] oldInstalls = new String[]{
+            "/ultimate/ult-s",
+            "/ultimate/mods/Ultimate S Arcropolis",
+            "/ultimate/mods/Ultimate S Stages"
+        };
+        for (String dir : oldInstalls) {
+            onProgress.accept("Removing old " + dir.substring(1));
+            deleteContents(Paths.get(pathRoot + dir));
         }
-        if(new File(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libparam_hook.nro").isFile()) {
-            Files.move(Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libparam_hook.nro"), 
-            Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/disabled_plugins/libparam_hook.nro"), StandardCopyOption.REPLACE_EXISTING);
+        CopyDir.copyDirectory(Paths.get("ultimate/"), Paths.get(pathRoot+"/ultimate/"), file -> onProgress.accept("Copying " + file));
+    }
+
+    // deletes everything inside dir (but not dir itself), throwing on the first file that can't be removed
+    private static void deleteContents(Path dir) throws IOException {
+        if (!Files.isDirectory(dir)) return;
+        List<Path> paths;
+        try (Stream<Path> walk = Files.walk(dir)) {
+            paths = walk.sorted(Comparator.reverseOrder()).collect(Collectors.toList());
         }
-        if(new File(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libacmd_hook.nro").isFile()) {
-            Files.move(Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libacmd_hook.nro"), 
-            Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/disabled_plugins/libacmd_hook.nro"), StandardCopyOption.REPLACE_EXISTING);
+        for (Path p : paths) {
+            if (!p.equals(dir)) Files.delete(p);
         }
-        if(new File(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libsmashline_hook.nro").isFile()) {
-            Files.move(Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libsmashline_hook.nro"), 
-            Paths.get(pathRoot+"/atmosphere/contents/01006A800016E000/romfs/skyline/disabled_plugins/libsmashline_hook.nro"), StandardCopyOption.REPLACE_EXISTING);
-        }
-        
-        CopyDir.copyDirectory(Paths.get("atmosphere/"), Paths.get(pathRoot+"/atmosphere/"));
-        DirectoryDeleter.deleteDirectory(new File(pathRoot+"/ultimate/ult-s"));
-        DirectoryDeleter.deleteDirectory(new File(pathRoot+"/ultimate/mods/Ultimate S Arcropolis"));
-        DirectoryDeleter.deleteDirectory(new File(pathRoot+"/ultimate/mods/Ultimate S Stages"));
-        CopyDir.copyDirectory(Paths.get("ultimate/"), Paths.get(pathRoot+"/ultimate/"));
-        System.out.println("done");
     }
 }

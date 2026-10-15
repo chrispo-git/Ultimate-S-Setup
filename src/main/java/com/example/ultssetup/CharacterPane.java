@@ -30,18 +30,25 @@ import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import javafx.stage.DirectoryChooser;
 import java.io.File;
+import java.time.Duration;
 
 public class CharacterPane
 {
     private final CharHandler charHandler = CharHandler.getInstance();
     private static final double iconScale = 50.0;
+
     
     private boolean isLock = false;
+    private static final int STEP_TIMEOUT_SECONDS = 30;
 
     /**
      * Constructor for objects of class CharacterTab
@@ -183,43 +190,67 @@ public class CharacterPane
         }
     }
     
+    private interface DependencyStep {
+        void run() throws IOException, URISyntaxException;
+    }
+
     private void grabDependencies(Label lbl) {
-        Task task = new Task<Void>() {
+        Task<Void> task = new Task<>() {
+            private final ExecutorService stepExecutor = Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                return t;
+            });
+
+            private boolean runStep(String name, DependencyStep step, String doneMsg) {
+                Future<?> future = stepExecutor.submit(() -> { step.run(); return null; });
+                try {
+                    future.get(STEP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                    updateMessage(doneMsg);
+                    return true;
+                } catch (TimeoutException e) {
+                    future.cancel(true);
+                    updateMessage("Timed out after " + STEP_TIMEOUT_SECONDS + "s while " + name);
+                } catch (ExecutionException e) {
+                    updateMessage("Error while " + name + "! " + e.getCause());
+                } catch (InterruptedException e) {
+                    future.cancel(true);
+                    Thread.currentThread().interrupt();
+                    updateMessage("Cancelled while " + name);
+                }
+                return false;
+            }
+
             @Override public Void call() {
-                //DependencyDownload.getDependencies(lbl);
                 if(isLock) return null;
                 isLock = true;
                 try {
                     updateMessage("Setting Up Folders...");
-                    DependencyDownload.emptyFolders();
-                    DependencyDownload.setupFolders();
-                    DependencyDownload.getSkyline();
-                    updateMessage("Skyline Installed!");
-                    DependencyDownload.getArcropolis();
-                    updateMessage("Arcropolis Installed!");
-                    DependencyDownload.getNROHook();
-                    updateMessage("NRO Hook Installed!");
-                    DependencyDownload.getSmashlineHook();
-                    updateMessage("Smashline Plugin Installed!");
-                    DependencyDownload.getParamConfigHook();
-                    updateMessage("Param Config Plugin Installed!");
-                    DependencyDownload.getStageConfigHook();
-                    updateMessage("Stage Config Plugin Installed!");
-                    DependencyDownload.getOSE();
-                    updateMessage("One Slot Effects Plugin Installed!");
-                    DependencyDownload.getCSK();
-                    updateMessage("CSK Collection Plugin Installed!");
-                    updateMessage("Finished grabbing dependencies."); 
-                } catch(IOException | URISyntaxException e) {
-                    updateMessage("Error Downloading!"); 
+                    boolean ok = runStep("setting up folders", () -> {
+                                DependencyDownload.emptyFolders();
+                                DependencyDownload.setupFolders();
+                            }, "Folders Set Up!")
+                        && runStep("installing Skyline", DependencyDownload::getSkyline, "Skyline Installed!")
+                        && runStep("installing Arcropolis", DependencyDownload::getArcropolis, "Arcropolis Installed!")
+                        && runStep("installing NRO Hook", DependencyDownload::getNROHook, "NRO Hook Installed!")
+                        && runStep("installing Smashline Plugin", DependencyDownload::getSmashlineHook, "Smashline Plugin Installed!")
+                        && runStep("installing Param Config Plugin", DependencyDownload::getParamConfigHook, "Param Config Plugin Installed!")
+                        && runStep("installing Stage Config Plugin", DependencyDownload::getStageConfigHook, "Stage Config Plugin Installed!")
+                        && runStep("installing One Slot Effects Plugin", DependencyDownload::getOSE, "One Slot Effects Plugin Installed!")
+                        && runStep("installing CSK Collection Plugin", DependencyDownload::getCSK, "CSK Collection Plugin Installed!");
+                    if (ok) updateMessage("Finished grabbing dependencies.");
+                } finally {
+                    stepExecutor.shutdownNow();
+                    isLock = false;
                 }
-                isLock = false;
                 return null;
             }
         };
         if(isLock) return;
         lbl.textProperty().bind(task.messageProperty());
-        new Thread(task).start();
+        Thread dependencyTask = new Thread(task);
+        dependencyTask.setDaemon(true);
+        dependencyTask.start();
     }
     
     private void updateChars(Label lbl) {
@@ -243,18 +274,24 @@ public class CharacterPane
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Choose install directory (root of SD Card / sdmc folder)");
         File selectedDirectory = directoryChooser.showDialog(Display.getStage());
-        Task task = new Task<Void>() {
+        if (selectedDirectory == null) return; // user cancelled the chooser
+        Task<Void> task = new Task<>() {
             @Override public Void call() {
                 if(isLock) return null;
                 isLock = true;
+                String[] current = {"starting install"};
                 try {
                     updateMessage("Installing to folder...");
-                    FolderSetup.setup(selectedDirectory.getPath());
-                    updateMessage("Finished installing."); 
-                } catch(IOException e) {
-                    updateMessage("Error installing to folder!"); 
+                    FolderSetup.setup(selectedDirectory.getPath(), msg -> {
+                        current[0] = msg;
+                        updateMessage(msg);
+                    });
+                    updateMessage("Finished installing.");
+                } catch(IOException | RuntimeException e) {
+                    updateMessage("Error installing to folder! Stopped at: " + current[0] + " (" + e + ")");
+                } finally {
+                    isLock = false;
                 }
-                isLock = false;
                 return null;
             }
         };

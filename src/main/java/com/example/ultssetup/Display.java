@@ -1,21 +1,12 @@
 package com.example.ultssetup;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.scene.control.ToggleButton;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.geometry.Pos;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.Separator;
@@ -23,30 +14,13 @@ import javafx.geometry.Orientation;
 
 import java.io.File;
 
-/**
- * Write a description of JavaFX class Display here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class Display extends Application
 {
     private static Stage stage;
-    /**
-     * The start method is the main entry point for every JavaFX application. 
-     * It is called after the init() method has returned and after 
-     * the system is ready for the application to begin running.
-     *
-     * @param  stage the primary stage for this application.
-     */
+
     @Override
     public void start(Stage stage) {
         this.stage = stage;
-        // Create a grid pane to hold the toggle buttons
-
-        // Create a scene and set it on the stage
-        TabPane tabPane = new TabPane();
-
 
 
         System.out.println(System.getProperty("user.dir"));
