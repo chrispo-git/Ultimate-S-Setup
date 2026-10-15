@@ -1,0 +1,40 @@
+
+.toggle-button.fighter-toggle {
+    -fx-background-color: -color-bg-subtle;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-padding: 6;
+    -fx-effect: none;
+    -fx-opacity: 0.55;
+}
+
+.toggle-button.fighter-toggle:hover {
+    -fx-border-color: -color-accent-muted;
+    -fx-opacity: 0.8;
+}
+
+.toggle-button.fighter-toggle:selected {
+    -fx-background-color: -color-accent-subtle;
+    -fx-border-color: -color-accent-emphasis;
+    -fx-opacity: 1;
+}
+
+.toggle-button.fighter-toggle:selected:hover {
+    -fx-border-color: -color-accent-fg;
+}
+
+.status-bar {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 10 12;
+    -fx-spacing: 10;
+}
+
+.status-bar .status-text {
+    -fx-text-fill: -color-fg-muted;
+    -fx-padding: 0 0 0 8;
+}

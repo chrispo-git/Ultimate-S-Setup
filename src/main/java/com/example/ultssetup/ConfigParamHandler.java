@@ -10,9 +10,6 @@ import java.util.List;
 
 public class ConfigParamHandler {
 
-    /**
-     * Constructor for objects of class FighterParamHandler
-     */
     private ConfigParamHandler()
     {
     }

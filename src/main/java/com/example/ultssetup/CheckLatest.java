@@ -7,29 +7,12 @@ import java.util.Optional;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-/**
- * Write a description of class CheckLatest here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class CheckLatest
 {
-    // instance variables - replace the example below with your own
-    private int x;
-
-    /**
-     * Constructor for objects of class CheckLatest
-     */
     private CheckLatest()
     {
-        // initialise instance variables
-        x = 0;
     }
 
-    /**
-     * Checks if we have the latest version of Ultimate S and directs us to the github if we don't!
-     */
     public static void checkLatestVersion()
     {
         Version localVer = VersionGetter.getLocalVer();

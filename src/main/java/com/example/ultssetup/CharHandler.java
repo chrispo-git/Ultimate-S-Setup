@@ -1,23 +1,14 @@
 package com.example.ultssetup;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-/**
- * Write a description of class CharHandler here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class CharHandler
 {
-    // instance variables - replace the example below with your own
+    
     private static CharHandler instance;
     private List<String> included;
     private List<String> excluded;
-    /**
-     * Constructor for objects of class CharHandler
-     */
+    
     private CharHandler()
     {
         resetChars();

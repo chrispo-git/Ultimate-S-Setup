@@ -14,6 +14,8 @@ import javafx.geometry.Orientation;
 
 import java.io.File;
 
+import atlantafx.base.theme.PrimerDark;
+
 public class Display extends Application
 {
     private static Stage stage;
@@ -21,7 +23,7 @@ public class Display extends Application
     @Override
     public void start(Stage stage) {
         this.stage = stage;
-
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
 
         System.out.println(System.getProperty("user.dir"));
         System.out.println(new File("resources/logo.png").isFile());
@@ -35,6 +37,7 @@ public class Display extends Application
         border.setCenter(verBox);
         border.setBottom(charPane.getPane());
         Scene scene = new Scene(border);
+        scene.getStylesheets().add(Display.class.getResource("style.css").toExternalForm());
         stage.setTitle("Ultimate S Setup Tool");
         stage.setScene(scene);
         stage.show();

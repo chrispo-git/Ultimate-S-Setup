@@ -1,24 +1,12 @@
 package com.example.ultssetup;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.io.BufferedReader;
 import java.util.List;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 
 public class VersionGetter
 {
-    // instance variables - replace the example below with your own
-
-    /**
-     * Constructor for objects of class VersionHandler
-     */
     private VersionGetter()
     {
     }

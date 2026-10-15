@@ -10,28 +10,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Write a description of class TroubleShooter here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class FolderSetup
 {
-    // instance variables - replace the example below with your own
-    private int x;
-
-    /**
-     * Constructor for objects of class TroubleShooter
-     */
     private FolderSetup()
     {
     }
     
-    /**
-     * Installs atmosphere/ and ultimate/ to the given SD card root.
-     * Reports each step through onProgress and throws on the first failure.
-     */
     public static void setup(String pathRoot, Consumer<String> onProgress) throws IOException
     {
         if (pathRoot.endsWith("/")) pathRoot = pathRoot.substring(0,pathRoot.length()-1);
@@ -66,7 +50,6 @@ public class FolderSetup
         CopyDir.copyDirectory(Paths.get("ultimate/"), Paths.get(pathRoot+"/ultimate/"), file -> onProgress.accept("Copying " + file));
     }
 
-    // deletes everything inside dir (but not dir itself), throwing on the first file that can't be removed
     private static void deleteContents(Path dir) throws IOException {
         if (!Files.isDirectory(dir)) return;
         List<Path> paths;

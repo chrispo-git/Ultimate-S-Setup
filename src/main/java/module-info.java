@@ -3,6 +3,7 @@ module com.example.ultssetup {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
+    requires atlantafx.base;
     requires java.desktop;
 
     opens com.example.ultssetup to javafx.fxml;

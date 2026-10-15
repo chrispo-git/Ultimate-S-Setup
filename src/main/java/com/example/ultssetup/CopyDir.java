@@ -6,16 +6,8 @@ import java.util.function.Consumer;
 
 public class CopyDir
 {
-    // instance variables - replace the example below with your own
-    private int x;
-
-    /**
-     * Constructor for objects of class CopyDir
-     */
     private CopyDir()
     {
-        // initialise instance variables
-        x = 0;
     }/**
      * Copies all files from the source directory to the destination directory.
      * Overwrites existing files and merges directories.

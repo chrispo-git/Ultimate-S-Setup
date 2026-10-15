@@ -1,26 +1,10 @@
 package com.example.ultssetup;
 import javafx.scene.control.Alert;
-import java.awt.Desktop;
-import java.net.URI;
 import javafx.scene.control.ButtonType;
 import java.util.Optional;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
-/**
- * Write a description of class CheckLatest here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class ExceptionAlert
 {
-    // instance variables - replace the example below with your own
-    private int x;
-
-    /**
-     * Constructor for objects of class CheckLatest
-     */
     private ExceptionAlert()
     {
     }

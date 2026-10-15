@@ -1,7 +1,5 @@
 package com.example.ultssetup;
 import java.io.File;
-import java.net.URL;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -21,24 +19,14 @@ import java.util.stream.Stream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 
-/**
- * Write a description of class DependencyDownload here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class DependencyDownload
 {
     public static final int BUFFER_SIZE = 4096;
-    // kept under CharacterPane's 30s per-step timeout so a stalled connection fails with a real error
+    
     public static final int CONNECT_TIMEOUT_MS = 10_000;
     public static final int READ_TIMEOUT_MS = 20_000;
-    /**
-     * Constructor for objects of class DependencyDownload
-     */
+
     private DependencyDownload()
     {
     }

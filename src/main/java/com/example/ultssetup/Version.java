@@ -4,14 +4,10 @@ package com.example.ultssetup;
  */
 public class Version
 {
-    // instance variables - replace the example below with your own
     private final int major;
     private final int minor;
     private final int patch;
 
-    /**
-     * Constructor for objects of class Version
-     */
     public Version(int major, int minor, int patch)
     {
         this.major = major;

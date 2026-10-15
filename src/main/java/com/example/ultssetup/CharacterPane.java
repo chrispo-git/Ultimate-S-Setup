@@ -1,33 +1,26 @@
 package com.example.ultssetup;
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import javafx.scene.control.ToggleButton;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.geometry.Pos;
-import javafx.scene.control.Tab;
 import javafx.scene.text.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Separator;
 import javafx.geometry.Orientation;
 import javafx.scene.layout.HBox;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Menu;
 import javafx.scene.layout.Pane;
 import javafx.concurrent.Task;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.Priority;
+import atlantafx.base.theme.Styles;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +32,6 @@ import java.util.concurrent.TimeoutException;
 
 import javafx.stage.DirectoryChooser;
 import java.io.File;
-import java.time.Duration;
 
 public class CharacterPane
 {
@@ -49,10 +41,8 @@ public class CharacterPane
     
     private boolean isLock = false;
     private static final int STEP_TIMEOUT_SECONDS = 30;
+    private final ProgressBar progressBar = new ProgressBar();
 
-    /**
-     * Constructor for objects of class CharacterTab
-     */
     public CharacterPane()
     {
         
@@ -74,36 +64,23 @@ public class CharacterPane
             "pickel", "edge", "element", "demon", "trail", "miifighter", "miiswordsman", "miigunner"
         };
         for (int i = 0; i < 6*13; i++) {
-            ToggleButton toggleButton = new ToggleButton();
-            String fighter = charactersList[i];
-            try {
-                Image icon = new Image("file:resources/on_icon/"+fighter+".png", iconScale, iconScale, false, false);
-                toggleButton.setGraphic(new ImageView(icon));
-            } catch(IllegalArgumentException e) {
-                System.out.println("resources/on_icon/"+fighter+".png not found");
-            }
-            toggleButton.setSelected(true);
-            toggleButton.setOnAction(event -> handleToggle(fighter, toggleButton.isSelected(), toggleButton));
-            pane.add(toggleButton, i % 13, i / 13); // Arrange in a grid (13 columns)
+            pane.add(createFighterToggle(charactersList[i]), i % 13, i / 13); // Arrange in a grid (13 columns)
         }
         for (int i = 6*13; i < charactersList.length; i++) {
-            ToggleButton toggleButton = new ToggleButton();
-            String fighter = charactersList[i];
-            try {
-                Image icon = new Image("file:resources/on_icon/"+fighter+".png", iconScale, iconScale, false, false);
-                toggleButton.setGraphic(new ImageView(icon));
-            } catch(IllegalArgumentException e) {
-                System.out.println("resources/on_icon/"+fighter+".png not found");
-            }
-            toggleButton.setSelected(true);
-            toggleButton.setOnAction(event -> handleToggle(fighter, toggleButton.isSelected(), toggleButton));
-            pane.add(toggleButton, 2+(i % 13), i / 13); // Arrange in a grid (13 columns)
+            pane.add(createFighterToggle(charactersList[i]), 2+(i % 13), i / 13); // Arrange in a grid (13 columns)
         }
         
         Label statusText = new Label();
-        statusText.setPadding(new Insets(0, 15, 0, 15));
-        
+        statusText.getStyleClass().add("status-text");
+        statusText.setMinWidth(0);
+        statusText.setMaxWidth(Double.MAX_VALUE);
+        // long errors get cut off with "...", so show the full text on hover
+        Tooltip statusTip = new Tooltip();
+        statusTip.textProperty().bind(statusText.textProperty());
+        statusText.setTooltip(statusTip);
+
         Button updateButton = new Button("Update");
+        updateButton.getStyleClass().add(Styles.ACCENT);
         updateButton.setAlignment(Pos.CENTER);
         updateButton.setOnAction(event -> updateChars(statusText));
         pane.add(updateButton, 7, 8);
@@ -143,19 +120,39 @@ public class CharacterPane
         root.setRight(rightHelp);
         root.setCenter(new Separator(Orientation.VERTICAL));
         
-        ClickableMenu dependenciesButton = new ClickableMenu("Update Dependencies");
+        Button dependenciesButton = new Button("Update Dependencies");
         dependenciesButton.setOnAction(event -> grabDependencies(statusText));
-        
-        ClickableMenu installerButton = new ClickableMenu("Install Ultimate S To Folder");
+
+        Button installerButton = new Button("Install Ultimate S To Folder");
+        installerButton.getStyleClass().add(Styles.ACCENT);
         installerButton.setOnAction(event -> installToFolder(statusText));
-        
-        MenuBar menu = new MenuBar();
-        menu.getMenus().addAll(dependenciesButton, installerButton);
-        VBox bottomPane = new VBox(new Separator(Orientation.HORIZONTAL), statusText, menu);
+
+        progressBar.getStyleClass().add(Styles.SMALL);
+        progressBar.setPrefWidth(160);
+        progressBar.setVisible(false);
+
+        HBox.setHgrow(statusText, Priority.ALWAYS);
+        HBox bottomPane = new HBox(dependenciesButton, installerButton, statusText, progressBar);
+        bottomPane.getStyleClass().add("status-bar");
+        bottomPane.setAlignment(Pos.CENTER_LEFT);
         root.setBottom(bottomPane);
         
         return root;
     }
+    private ToggleButton createFighterToggle(String fighter) {
+        ToggleButton toggleButton = new ToggleButton();
+        toggleButton.getStyleClass().add("fighter-toggle");
+        try {
+            Image icon = new Image("file:resources/on_icon/"+fighter+".png", iconScale, iconScale, false, false);
+            toggleButton.setGraphic(new ImageView(icon));
+        } catch(IllegalArgumentException e) {
+            System.out.println("resources/on_icon/"+fighter+".png not found");
+        }
+        toggleButton.setSelected(true);
+        toggleButton.setOnAction(event -> handleToggle(fighter, toggleButton.isSelected(), toggleButton));
+        return toggleButton;
+    }
+
     private void handleToggle(String fighter, boolean isSelected, ToggleButton btn) {
         Image icon;
         if (isSelected) {
@@ -201,12 +198,15 @@ public class CharacterPane
                 t.setDaemon(true);
                 return t;
             });
+            private final int totalSteps = 9;
+            private int stepsDone = 0;
 
             private boolean runStep(String name, DependencyStep step, String doneMsg) {
                 Future<?> future = stepExecutor.submit(() -> { step.run(); return null; });
                 try {
                     future.get(STEP_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                     updateMessage(doneMsg);
+                    updateProgress(++stepsDone, totalSteps);
                     return true;
                 } catch (TimeoutException e) {
                     future.cancel(true);
@@ -247,14 +247,21 @@ public class CharacterPane
             }
         };
         if(isLock) return;
-        lbl.textProperty().bind(task.messageProperty());
+        trackTask(task, lbl);
         Thread dependencyTask = new Thread(task);
         dependencyTask.setDaemon(true);
         dependencyTask.start();
     }
     
+    // shows a task's messages in the status label, and its progress in the bar while it runs
+    private void trackTask(Task<?> task, Label lbl) {
+        lbl.textProperty().bind(task.messageProperty());
+        progressBar.progressProperty().bind(task.progressProperty());
+        progressBar.visibleProperty().bind(task.runningProperty());
+    }
+
     private void updateChars(Label lbl) {
-        Task task = new Task<Void>() {
+        Task<Void> task = new Task<>() {
             @Override public Void call() {
                 if(isLock) return null;
                 isLock = true;
@@ -266,7 +273,7 @@ public class CharacterPane
             }
         };
         if(isLock) return;
-        lbl.textProperty().bind(task.messageProperty());
+        trackTask(task, lbl);
         new Thread(task).start();
     }
     
@@ -296,7 +303,7 @@ public class CharacterPane
             }
         };
         if(isLock) return;
-        lbl.textProperty().bind(task.messageProperty());
+        trackTask(task, lbl);
         new Thread(task).start();
     }
     

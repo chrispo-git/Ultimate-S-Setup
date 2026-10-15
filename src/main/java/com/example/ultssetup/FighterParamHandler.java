@@ -5,21 +5,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.io.BufferedReader;
 import java.util.List;
 
-/**
- * Write a description of class FighterParamHandler here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class FighterParamHandler
 {
 
-    /**
-     * Constructor for objects of class FighterParamHandler
-     */
     private FighterParamHandler()
     {
     }
