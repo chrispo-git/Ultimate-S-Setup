@@ -222,6 +222,12 @@ public class DependencyDownload
      * Downloads The CSK Collection plugin from GameBanana.
      */
     public static void getCSK()  throws IOException, URISyntaxException {
+
+        File check_for_CSK = new File("resources/libthe_csk_collection.nro");
+        if (check_for_CSK.exists()) {
+            Files.copy(Paths.get("resources/libthe_csk_collection.nro"), Paths.get("atmosphere/contents/01006A800016E000/romfs/skyline/plugins/libthe_csk_collection.nro"), StandardCopyOption.REPLACE_EXISTING);
+            return;
+        }
         String dlURL =  GithubAPIReader.getResultsGB("https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=499008&fields=Files().aFiles()");
         
         try (InputStream  in = openStream(dlURL)) {
