@@ -251,7 +251,7 @@ public class CharacterPane
                                 DependencyDownload.emptyFolders();
                                 DependencyDownload.setupFolders();
                             }, "Folders Set Up!")
-                        && runStep("installing Skyline", DependencyDownload::getSkyline, "Skyline Installed!")
+                        && runStep("installing Ozone", DependencyDownload::getOzone, "Ozone Installed!")
                         && runStep("installing Arcropolis", DependencyDownload::getArcropolis, "Arcropolis Installed!")
                         && runStep("installing NRO Hook", DependencyDownload::getNROHook, "NRO Hook Installed!")
                         && runStep("installing Smashline Plugin", DependencyDownload::getSmashlineHook, "Smashline Plugin Installed!")

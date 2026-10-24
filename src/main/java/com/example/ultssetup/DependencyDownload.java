@@ -81,14 +81,16 @@ public class DependencyDownload
     
     
     /**
-     * Downloads Skyline and extracts it into atmosphere/.
+     * Downloads Ozone and extracts it into atmosphere/.
      */
-    public static void getSkyline() throws IOException, URISyntaxException{
-        String dlURL = "https://github.com/skyline-dev/skyline/releases/download/beta/skyline.zip";
+    public static void getOzone() throws IOException, URISyntaxException{
+        HashMap<String, String> apiMap = GithubAPIReader.getResults("https://api.github.com/repos/WuBoytH/ozone/releases/latest");
+        String latestVer = apiMap.get("tag_name");
+        String dlURL = "https://github.com/WuBoytH/ozone/releases/download/"+latestVer+"/ozone.zip";
         try (InputStream  in = openStream(dlURL)) {
-            Files.copy(in, Paths.get("downloads/skyline.zip"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(in, Paths.get("downloads/ozone.zip"), StandardCopyOption.REPLACE_EXISTING);
         }
-        unzip("downloads/skyline.zip", "atmosphere/contents/01006A800016E000");
+        unzip("downloads/ozone.zip", "atmosphere/contents/01006A800016E000");
     }
     
     /**
