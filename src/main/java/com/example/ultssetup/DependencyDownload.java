@@ -164,8 +164,7 @@ public class DependencyDownload
             Files.copy(in, Paths.get("downloads/arcropolis.zip"), StandardCopyOption.REPLACE_EXISTING);
             List<File> directories = Arrays.asList(
                 new File("downloads/atmosphere/contents/01006A800016E000/romfs/skyline/plugins"),
-                new File("downloads/ultimate/arcropolis/resources/ui/layout"),
-                new File("downloads/ultimate/arcropolis/resources/ui/message")
+                new File("downloads/ultimate/arcropolis/resources")
             );
             for (File d : directories) {
                 if (!d.isDirectory()) {
